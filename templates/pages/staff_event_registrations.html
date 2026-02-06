@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Event Registrations - Staff Dashboard - Relics of War Games{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'staff_dashboard' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <h1><i class="fas fa-clipboard-list"></i> Event Registration Management</h1>
+            <p class="text-muted">View and manage all event participant registrations</p>
+        </div>
+    </div>
+
+    <!-- Filter Options -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Filter by Event</h5>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'staff_event_registrations' %}" class="btn {% if not event_filter %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            <i class="fas fa-list"></i> All ({{ registrations.count }})
+                        </a>
+                        {% for event in events %}
+                            <a href="{% url 'staff_event_registrations' %}?event={{ event.id }}" class="btn {% if event_filter == event.id|stringformat:"s" %}btn-info{% else %}btn-outline-info{% endif %}">
+                                {{ event.title|truncatewords:3 }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registrations List -->
+    {% if registrations %}
+    <div class="row">
+        {% for registration in registrations %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ registration.user.get_full_name|default:registration.user.username }}</h5>
+                    {% if registration.attended %}
+                        <span class="badge bg-success">Attended</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Not Checked</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-muted">Event</h6>
+                        <p class="mb-0">
+                            <strong>{{ registration.event.title }}</strong>
+                            <br>
+                            <small class="text-muted">{{ registration.event.get_event_type_display }}</small>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-muted">Participant</h6>
+                        <p class="mb-0">
+                            <strong>@{{ registration.user.username }}</strong>
+                            <br>
+                            <small class="text-muted">{{ registration.user.email }}</small>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-muted">Registered On</h6>
+                        <p class="mb-0"><small class="text-muted">{{ registration.registration_date|date:"M d, Y \a\t H:i" }}</small></p>
+                    </div>
+
+                    {% if registration.notes %}
+                    <div class="mb-3">
+                        <h6 class="text-muted">Notes</h6>
+                        <p class="mb-0">{{ registration.notes }}</p>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <!-- Attendance Buttons -->
+                    <form method="POST" action="{% url 'staff_event_registration_detail' registration.id %}">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2">
+                            {% if registration.attended %}
+                                <button type="submit" name="action" value="not_attended" class="btn btn-warning flex-grow-1">
+                                    <i class="fas fa-times"></i> Mark as Not Attended
+                                </button>
+                            {% else %}
+                                <button type="submit" name="action" value="attended" class="btn btn-success flex-grow-1">
+                                    <i class="fas fa-check"></i> Mark as Attended
+                                </button>
+                            {% endif %}
+                            <a href="{% url 'staff_event_registration_detail' registration.id %}" class="btn btn-info">
+                                <i class="fas fa-eye"></i> Details
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle"></i> No registrations found{% if event_filter %} for this event{% endif %}.
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}

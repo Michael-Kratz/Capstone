@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Event Registrations - Relics of War Games{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'events_list' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Events
+            </a>
+            <h1><i class="fas fa-clipboard-list"></i> My Event Registrations</h1>
+            <p class="text-muted">View all your registered events and track your participation</p>
+        </div>
+    </div>
+
+    {% if registrations %}
+    <div class="row">
+        {% for registration in registrations %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ registration.event.title }}</h5>
+                    <span class="badge bg-primary">{{ registration.event.get_event_type_display }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-muted">Event Details</h6>
+                        <p class="mb-2">
+                            <i class="fas fa-calendar"></i> <strong>Start:</strong> {{ registration.event.start_date|date:"M d, Y \a\t g:i A" }}<br>
+                            <i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ registration.event.location }}<br>
+                            {% if registration.event.entry_fee %}<i class="fas fa-coins"></i> <strong>Entry Fee:</strong> ${{ registration.event.entry_fee }}<br>{% endif %}
+                            <i class="fas fa-calendar-check"></i> <strong>Registered:</strong> {{ registration.registration_date|date:"M d, Y" }}
+                        </p>
+                    </div>
+
+                    {% if registration.event.description %}
+                    <div class="mb-3">
+                        <h6 class="text-muted">Description</h6>
+                        <p class="mb-0"><small>{{ registration.event.description|truncatewords:30 }}</small></p>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'event_detail' registration.event.id %}" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-eye"></i> View Event
+                        </a>
+                        <form method="GET" action="{% url 'cancel_event_registration' registration.event.id %}" style="flex-grow: 1;">
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fas fa-times"></i> Cancel Registration
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle"></i> You haven't registered for any events yet. <a href="{% url 'events_list' %}">Browse events</a> to get started!
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}

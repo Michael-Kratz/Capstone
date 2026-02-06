@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Staff Dashboard - Relics of War Games{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1><i class="fas fa-cog"></i> Staff Management Dashboard</h1>
+            <p class="text-muted">Manage events, services, and trading posts</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-3x mb-2"></i>
+                    <h5 class="card-title">Events</h5>
+                    <h2>{{ events_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-brush fa-3x mb-2"></i>
+                    <h5 class="card-title">Services</h5>
+                    <h2>{{ services_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-exchange-alt fa-3x mb-2"></i>
+                    <h5 class="card-title">Trading Posts</h5>
+                    <h2>{{ trading_posts_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-secondary text-white shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-clipboard-list fa-3x mb-2"></i>
+                    <h5 class="card-title">Registrations</h5>
+                    <h2>{{ total_registrations }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-3x mb-2"></i>
+                    <h5 class="card-title">Service Bookings</h5>
+                    <h2>{{ all_bookings_count }}</h2>
+                    <small class="text-warning">{{ pending_bookings_count }} pending</small>
+                </div>
+            </div>
+        </div>
+        {% if user.is_superuser %}
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-lock-open fa-3x mb-2"></i>
+                    <h5 class="card-title">Admin Panel</h5>
+                    <p class="mb-0"><small>Full Control</small></p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Management Options -->
+    <div class="row">
+        <!-- Events Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-calendar-alt text-primary"></i> Event Management
+                    </h5>
+                    <p class="card-text text-muted">Add, view, and delete events</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'staff_add_event' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Event
+                        </a>
+                        <a href="{% url 'staff_events_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-list"></i> View All ({{ events_count }})
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-brush text-success"></i> Service Management
+                    </h5>
+                    <p class="card-text text-muted">{% if user.userprofile.rank == 'Manager' or user.is_superuser %}Add, view, and delete services{% else %}View available services{% endif %}</p>
+                    <div class="d-flex gap-2">
+                        {% if user.userprofile.rank == 'Manager' or user.is_superuser %}
+                            <a href="{% url 'staff_add_service' %}" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Add Service
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'staff_services_list' %}" class="btn {% if user.userprofile.rank == 'Manager' or user.is_superuser %}btn-outline-success{% else %}btn-success{% endif %}">
+                            <i class="fas fa-list"></i> View All ({{ services_count }})
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Posts Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-exchange-alt text-warning"></i> Trading Post Management
+                    </h5>
+                    <p class="card-text text-muted">View and delete trading posts</p>
+                    <a href="{% url 'staff_trading_posts' %}" class="btn btn-warning">
+                        <i class="fas fa-list"></i> View All ({{ trading_posts_count }})
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Bookings Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-calendar-check text-danger"></i> Service Booking Management
+                    </h5>
+                    <p class="card-text text-muted">Manage customer service bookings and requests</p>
+                    <a href="{% url 'staff_bookings' %}" class="btn btn-danger">
+                        <i class="fas fa-list"></i> View All ({{ all_bookings_count }})
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Registrations Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-clipboard-list text-secondary"></i> Event Registration Management
+                    </h5>
+                    <p class="card-text text-muted">Track and manage event participant registrations</p>
+                    <a href="{% url 'staff_event_registrations' %}" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> View All ({{ total_registrations }})
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        {% if user.is_superuser %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-users-cog text-info"></i> Manage Staff Ranks
+                    </h5>
+                    <p class="card-text text-muted">Promote or demote staff members</p>
+                    <a href="{% url 'staff_users' %}" class="btn btn-info">
+                        <i class="fas fa-users"></i> Manage Ranks
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lock text-danger"></i> Full Admin Panel
+                    </h5>
+                    <p class="card-text text-muted">Access Django admin for complete control</p>
+                    <a href="/admin/" class="btn btn-danger">
+                        <i class="fas fa-cog"></i> Go to Admin Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Help -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Quick Help</h5>
+                <ul class="mb-0">
+                    <li><strong>Events:</strong> Create tournaments, leagues, casual games, and workshops</li>
+                    <li><strong>Services:</strong> View available services (managers can add/edit/delete)</li>
+                    <li><strong>Trading Posts:</strong> Moderate user listings and remove inappropriate content</li>
+                    <li><strong>Service Bookings:</strong> Manage customer booking requests and update booking status</li>
+                    <li><strong>Event Registrations:</strong> Track who registered for events and mark attendance</li>
+                    {% if user.is_superuser %}<li><strong>Admin Panel:</strong> For advanced settings and database management</li>{% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

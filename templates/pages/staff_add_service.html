@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Service - Staff{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <a href="{% url 'staff_dashboard' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h1 class="mb-4"><i class="fas fa-brush"></i> Add New Service</h1>
+
+                    {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <i class="fas fa-exclamation-circle"></i> {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Service Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" required 
+                                   placeholder="e.g., Professional Army Painting">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required 
+                                      placeholder="Describe your service..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="service_type" class="form-label">Service Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="service_type" name="service_type" required>
+                                    <option value="">Select Type</option>
+                                    {% for value, label in service_types %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="skill_level" class="form-label">Skill Level</label>
+                                <select class="form-select" id="skill_level" name="skill_level">
+                                    <option value="">Select Skill Level</option>
+                                    {% for value, label in skill_levels %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="price" class="form-label">Price ($) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="price" name="price" step="0.01" required 
+                                       placeholder="0.00">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="duration_hours" class="form-label">Duration (Hours)</label>
+                                <input type="number" class="form-control" id="duration_hours" name="duration_hours" step="0.5"
+                                       placeholder="e.g., 2">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="provider_name" class="form-label">Provider Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="provider_name" name="provider_name" required 
+                                   placeholder="Name of service provider">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="provider_contact" class="form-label">Contact Info</label>
+                            <input type="text" class="form-control" id="provider_contact" name="provider_contact" 
+                                   placeholder="Phone, email, or social media">
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="available" name="available" checked>
+                            <label class="form-check-label" for="available">
+                                Service is available now
+                            </label>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-plus"></i> Add Service
+                            </button>
+                            <a href="{% url 'staff_services_list' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

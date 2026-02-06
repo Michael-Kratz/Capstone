@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Book Service - {{ service.title }}{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <a href="{% url 'service_detail' service.pk %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Service
+            </a>
+
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h1 class="mb-1"><i class="fas fa-calendar-check"></i> Book Service</h1>
+                    <p class="text-muted mb-4">{{ service.title }}</p>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> <strong>Service Details</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li><strong>Service:</strong> {{ service.title }}</li>
+                                    <li><strong>Type:</strong> {{ service.get_service_type_display }}</li>
+                                    <li><strong>Price:</strong> ${{ service.price }}</li>
+                                    <li><strong>Duration:</strong> {{ service.duration_hours }} hours</li>
+                                    <li><strong>Provider:</strong> {{ service.provider_name }}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="booking_date" class="form-label">Preferred Booking Date & Time <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control" id="booking_date" name="booking_date" required>
+                            <small class="text-muted">Please provide your preferred date and time</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="notes" class="form-label">Additional Notes or Requirements</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                      placeholder="Any special requests or additional information..."></textarea>
+                            <small class="text-muted">Optional - Let the provider know about any special requirements</small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Submit Booking Request
+                            </button>
+                            <a href="{% url 'service_detail' service.pk %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="alert alert-light">
+                        <h6><i class="fas fa-question-circle"></i> What happens next?</h6>
+                        <ol class="mb-0">
+                            <li>Your booking request will be sent to {{ service.provider_name }}</li>
+                            <li>They will review your request and preferred date/time</li>
+                            <li>You'll receive confirmation (check your email for updates)</li>
+                            <li>On the booking date, the service will be provided</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

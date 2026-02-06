@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ event.title }} - Event Details{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="mb-4">
+                <a href="{% url 'events_list' %}" class="btn btn-outline-secondary mb-3">
+                    <i class="fas fa-arrow-left"></i> Back to Events
+                </a>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1>{{ event.title }}</h1>
+                    <span class="badge bg-primary fs-6">{{ event.get_event_type_display }}</span>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Event Details</h5>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong><i class="fas fa-calendar"></i> Start Date:</strong><br>
+                                    {{ event.start_date|date:"l, F j, Y \a\t g:i A" }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong><i class="fas fa-calendar-check"></i> End Date:</strong><br>
+                                    {{ event.end_date|date:"l, F j, Y \a\t g:i A" }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <p class="mb-3">
+                            <strong><i class="fas fa-map-marker-alt"></i> Location:</strong><br>
+                            {{ event.location }}
+                        </p>
+                        
+                        <h6 class="mt-4 mb-3">Description</h6>
+                        <p class="text-justify">{{ event.description }}</p>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            {% if event.entry_fee %}
+                            <div class="col-md-4">
+                                <p><strong><i class="fas fa-coins"></i> Entry Fee:</strong><br>${{ event.entry_fee }}</p>
+                            </div>
+                            {% endif %}
+                            {% if event.max_participants %}
+                            <div class="col-md-4">
+                                <p><strong><i class="fas fa-users"></i> Participants:</strong><br>{{ event.participants_count }}/{{ event.max_participants }}</p>
+                            </div>
+                            {% endif %}
+                            <div class="col-md-4">
+                                <p><strong><i class="fas fa-clock"></i> Posted:</strong><br>{{ event.created_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Info</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-tag"></i> <strong>Type:</strong> {{ event.get_event_type_display }}</li>
+                        <li class="mb-2"><i class="fas fa-users"></i> <strong>Registrations:</strong> {{ registrations }}</li>
+                        {% if event.max_participants %}
+                        <li class="mb-2">
+                            <i class="fas fa-chair"></i> <strong>Spots Available:</strong>
+                            {% with available=event.max_participants|add:event.participants_count %}
+                                {% if available > 0 %}
+                                    <span class="badge bg-success">{{ available }} spots</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Event Full</span>
+                                {% endif %}
+                            {% endwith %}
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    {% if user.is_authenticated %}
+                        {% if user_registered %}
+                            <form method="GET" action="{% url 'cancel_event_registration' event.id %}">
+                                <button type="submit" class="btn btn-danger w-100 mb-2">
+                                    <i class="fas fa-times"></i> Cancel Registration
+                                </button>
+                            </form>
+                            <a href="{% url 'my_event_registrations' %}" class="btn btn-info w-100">
+                                <i class="fas fa-list"></i> My Registrations
+                            </a>
+                        {% else %}
+                            <form method="POST" action="{% url 'register_for_event' event.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-check"></i> Register for Event
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}?next={% url 'event_detail' event.id %}" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt"></i> Login to Register
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

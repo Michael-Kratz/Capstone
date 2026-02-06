@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}
+Relics of War Games - Events, Services & Trading
+{% endblock title %}
+
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock css %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-dark text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-4 mb-4"><i class="fas fa-hammer"></i> Relics of War Games</h1>
+                <p class="lead mb-4">Your one-stop destination for tournaments, coaching, painting services, and trading Warhammer 40K models!</p>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'events_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-calendar-alt"></i> Browse Events
+                    </a>
+                    <a href="{% url 'trading_list' %}" class="btn btn-success btn-lg">
+                        <i class="fas fa-exchange-alt"></i> Trading Post
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="fas fa-dice-d20" style="font-size: 6rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+    <h2 class="text-center mb-5">What We Offer</h2>
+    
+    <div class="row mb-5">
+        <!-- Events -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Event Calendar</h5>
+                    <p class="card-text">Tournaments, leagues, casual play, and workshops. Stay updated with all store events and competitions.</p>
+                    <a href="{% url 'events_list' %}" class="btn btn-outline-primary">View Events</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Services -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-brush text-success" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Painting & Coaching</h5>
+                    <p class="card-text">Professional painting services and expert coaching to improve your game and showcase your army.</p>
+                    <a href="{% url 'services_list' %}" class="btn btn-outline-success">Browse Services</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trading -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-exchange-alt text-info" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Trading Post</h5>
+                    <p class="card-text">Buy, sell, and trade pre-owned Warhammer 40K models. Connect with collectors in our community.</p>
+                    <a href="{% url 'trading_list' %}" class="btn btn-outline-info">Go to Trading</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Events Section -->
+{% if upcoming_events %}
+<div class="bg-light py-5">
+    <div class="container">
+        <h2 class="mb-4">Upcoming Events</h2>
+        <div class="row">
+            {% for event in upcoming_events %}
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="text-muted small">{{ event.get_event_type_display }}</p>
+                        <p class="card-text text-truncate">{{ event.description }}</p>
+                        <div class="mb-3">
+                            <i class="fas fa-calendar"></i> {{ event.start_date|date:"M d, Y H:i" }}<br>
+                            <i class="fas fa-map-marker-alt"></i> {{ event.location }}
+                        </div>
+                        <a href="{% url 'event_detail' event.pk %}" class="btn btn-sm btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'events_list' %}" class="btn btn-primary btn-lg">See All Events</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- CTA Section -->
+<div class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h3 class="mb-4">Ready to Join the Community?</h3>
+        <p class="lead mb-4">Start trading your models, book a coaching session, or register for upcoming events!</p>
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <a href="{% url 'trading_list' %}" class="btn btn-light btn-lg">Post an Item</a>
+            <a href="{% url 'services_list' %}" class="btn btn-light btn-lg">Book a Service</a>
+            <a href="{% url 'events_list' %}" class="btn btn-light btn-lg">Join an Event</a>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Booking Detail - Staff Dashboard - Relics of War Games{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <a href="{% url 'staff_bookings' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Bookings
+            </a>
+
+            <div class="card shadow">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Booking #{{ booking.id }}</h3>
+                    {% if booking.status == 'pending' %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif booking.status == 'confirmed' %}
+                        <span class="badge bg-success">Confirmed</span>
+                    {% elif booking.status == 'completed' %}
+                        <span class="badge bg-info">Completed</span>
+                    {% elif booking.status == 'cancelled' %}
+                        <span class="badge bg-danger">Cancelled</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <!-- Service Info -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-brush"></i> Service Information</h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Service Title:</strong> {{ booking.service.title }}</p>
+                                <p><strong>Type:</strong> {{ booking.service.service_type }}</p>
+                                <p><strong>Skill Level:</strong> {{ booking.service.skill_level }}</p>
+                                <p><strong>Duration:</strong> {{ booking.service.duration_hours }} hours</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Price:</strong> <span class="text-success">${{ booking.service.price }}</span></p>
+                                <p><strong>Provider:</strong> {{ booking.service.provider_name }}</p>
+                                <p><strong>Contact:</strong> {{ booking.service.provider_contact }}</p>
+                                <p><strong>Available:</strong> {% if booking.service.available %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-danger">No</span>{% endif %}</p>
+                            </div>
+                        </div>
+                        {% if booking.service.description %}
+                        <p class="text-muted mt-3"><em>{{ booking.service.description }}</em></p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Customer Info -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-user"></i> Customer Information</h5>
+                        <hr>
+                        <p><strong>Name:</strong> {{ booking.customer.get_full_name|default:booking.customer.username }}</p>
+                        <p><strong>Email:</strong> <a href="mailto:{{ booking.customer.email }}">{{ booking.customer.email }}</a></p>
+                        <p><strong>Username:</strong> @{{ booking.customer.username }}</p>
+                    </div>
+
+                    <!-- Booking Details -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-calendar-check"></i> Booking Details</h5>
+                        <hr>
+                        <p><strong>Booking Date/Time:</strong> {{ booking.booking_date|date:"M d, Y \a\t H:i" }}</p>
+                        <p><strong>Requested On:</strong> {{ booking.created_at|date:"M d, Y \a\t H:i" }}</p>
+                        <p><strong>Last Updated:</strong> {{ booking.updated_at|date:"M d, Y \a\t H:i" }}</p>
+                    </div>
+
+                    <!-- Notes -->
+                    {% if booking.notes %}
+                    <div class="mb-4">
+                        <h5><i class="fas fa-sticky-note"></i> Customer Notes</h5>
+                        <hr>
+                        <p class="bg-light p-3 rounded">{{ booking.notes }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Status Update -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-tasks"></i> Update Status</h5>
+                        <hr>
+                        <form method="POST" action="{% url 'staff_update_booking_status' booking.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <select class="form-select form-select-lg" name="status">
+                                        <option value="pending" {% if booking.status == 'pending' %}selected{% endif %}>📋 Pending Review</option>
+                                        <option value="confirmed" {% if booking.status == 'confirmed' %}selected{% endif %}>✓ Confirmed</option>
+                                        <option value="completed" {% if booking.status == 'completed' %}selected{% endif %}>✓✓ Completed</option>
+                                        <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>✕ Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-save"></i> Save Status
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

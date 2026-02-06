@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Relics of War Games - Events Calendar{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="fas fa-calendar-alt"></i> Event Calendar</h1>
+            <p class="text-muted">Check out upcoming tournaments, leagues, and casual play events!</p>
+        </div>
+        <div class="col-md-4">
+            <form method="get" class="d-flex gap-2">
+                <select name="type" class="form-select">
+                    <option value="">All Event Types</option>
+                    <option value="tournament" {% if event_type == 'tournament' %}selected{% endif %}>Tournament</option>
+                    <option value="league" {% if event_type == 'league' %}selected{% endif %}>League</option>
+                    <option value="casual" {% if event_type == 'casual' %}selected{% endif %}>Casual Play</option>
+                    <option value="workshop" {% if event_type == 'workshop' %}selected{% endif %}>Workshop</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
+    </div>
+
+    {% if events %}
+        <div class="row">
+            {% for event in events %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <span class="badge bg-primary">{{ event.get_event_type_display }}</span>
+                        </div>
+                        <p class="card-text text-muted">{{ event.description|truncatewords:20 }}</p>
+                        
+                        <div class="mb-3">
+                            <p class="mb-1"><i class="fas fa-calendar"></i> <strong>{{ event.start_date|date:"M d, Y H:i" }}</strong></p>
+                            <p class="mb-1"><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+                            {% if event.entry_fee %}
+                            <p class="mb-1"><i class="fas fa-coins"></i> Entry: ${{ event.entry_fee }}</p>
+                            {% endif %}
+                            {% if event.max_participants %}
+                            <p class="mb-1"><i class="fas fa-users"></i> {{ event.participants_count }}/{{ event.max_participants }} participants</p>
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{% url 'event_detail' event.pk %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No events found. Check back soon!
+        </div>
+    {% endif %}
+</div>
+{% endblock content %}

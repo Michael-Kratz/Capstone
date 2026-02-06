@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registration Detail - Staff Dashboard - Relics of War Games{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <a href="{% url 'staff_event_registrations' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Registrations
+            </a>
+
+            <div class="card shadow">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{{ registration.user.get_full_name|default:registration.user.username }}'s Registration</h3>
+                    {% if registration.attended %}
+                        <span class="badge bg-success">Attended</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Not Checked</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <!-- Event Info -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-calendar-alt"></i> Event Information</h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Event Title:</strong> {{ registration.event.title }}</p>
+                                <p><strong>Type:</strong> {{ registration.event.get_event_type_display }}</p>
+                                <p><strong>Location:</strong> {{ registration.event.location }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Start Date:</strong> {{ registration.event.start_date|date:"M d, Y \a\t g:i A" }}</p>
+                                <p><strong>End Date:</strong> {{ registration.event.end_date|date:"M d, Y \a\t g:i A" }}</p>
+                                <p><strong>Entry Fee:</strong> {% if registration.event.entry_fee %}<span class="text-success">${{ registration.event.entry_fee }}</span>{% else %}<span class="text-muted">Free</span>{% endif %}</p>
+                            </div>
+                        </div>
+                        {% if registration.event.description %}
+                        <p class="text-muted mt-3"><em>{{ registration.event.description }}</em></p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Participant Info -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-user"></i> Participant Information</h5>
+                        <hr>
+                        <p><strong>Name:</strong> {{ registration.user.get_full_name|default:"Not provided" }}</p>
+                        <p><strong>Username:</strong> @{{ registration.user.username }}</p>
+                        <p><strong>Email:</strong> <a href="mailto:{{ registration.user.email }}">{{ registration.user.email }}</a></p>
+                        <p><strong>Member Since:</strong> {{ registration.user.date_joined|date:"M d, Y" }}</p>
+                    </div>
+
+                    <!-- Registration Details -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-clipboard-list"></i> Registration Details</h5>
+                        <hr>
+                        <p><strong>Registered On:</strong> {{ registration.registration_date|date:"M d, Y \a\t H:i" }}</p>
+                        <p><strong>Attendance Status:</strong> 
+                            {% if registration.attended %}
+                                <span class="badge bg-success">Attended ✓</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Not Attended</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Notes -->
+                    {% if registration.notes %}
+                    <div class="mb-4">
+                        <h5><i class="fas fa-sticky-note"></i> Registration Notes</h5>
+                        <hr>
+                        <p class="bg-light p-3 rounded">{{ registration.notes }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Attendance Management -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-tasks"></i> Attendance Management</h5>
+                        <hr>
+                        <form method="POST" action="{% url 'staff_event_registration_detail' registration.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                {% if registration.attended %}
+                                    <div class="col-md-12 mb-3">
+                                        <p class="alert alert-success mb-3">
+                                            <i class="fas fa-check-circle"></i> This participant is marked as attended.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <button type="submit" name="action" value="not_attended" class="btn btn-warning w-100">
+                                            <i class="fas fa-times"></i> Mark as Not Attended
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-12 mb-3">
+                                        <p class="alert alert-info mb-3">
+                                            <i class="fas fa-info-circle"></i> Mark this participant's attendance when they arrive at the event.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <button type="submit" name="action" value="attended" class="btn btn-success w-100 btn-lg">
+                                            <i class="fas fa-check"></i> Mark as Attended
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

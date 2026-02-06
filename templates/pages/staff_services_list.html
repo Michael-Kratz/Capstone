@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Services - Staff{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <a href="{% url 'staff_dashboard' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <h1><i class="fas fa-brush"></i> Manage Services</h1>
+        </div>
+        {% if user.userprofile.rank == 'Manager' or user.is_superuser %}
+        <div class="col-md-4">
+            <a href="{% url 'staff_add_service' %}" class="btn btn-success btn-lg w-100">
+                <i class="fas fa-plus"></i> Add New Service
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if services %}
+    <div class="table-responsive">
+        <table class="table table-hover shadow">
+            <thead class="table-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Provider</th>
+                    <th>Price</th>
+                    <th>Duration</th>
+                    <th>Skill Level</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>
+                        <strong>{{ service.title }}</strong>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">{{ service.get_service_type_display }}</span>
+                    </td>
+                    <td>
+                        {{ service.provider_name }}
+                    </td>
+                    <td>
+                        <strong>${{ service.price }}</strong>
+                    </td>
+                    <td>
+                        {% if service.duration_hours %}
+                        {{ service.duration_hours }} hrs
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if service.skill_level %}
+                        <span class="badge bg-secondary">{{ service.get_skill_level_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if service.available %}
+                        <span class="badge bg-success">Available</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Unavailable</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'service_detail' service.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        {% if user.userprofile.rank == 'Manager' or user.is_superuser %}
+                        <form method="post" action="{% url 'staff_delete_service' service.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this service?')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No services yet.
+        {% if user.userprofile.rank == 'Manager' or user.is_superuser %}
+        <a href="{% url 'staff_add_service' %}" class="alert-link">Create one now</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}

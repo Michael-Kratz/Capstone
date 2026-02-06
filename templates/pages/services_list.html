@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Painting & Coaching Services{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="fas fa-brush"></i> Painting & Coaching Services</h1>
+            <p class="text-muted">Professional painting services and expert coaching to improve your game!</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="get" class="row g-2">
+                <div class="col-md-4">
+                    <select name="type" class="form-select">
+                        <option value="">All Services</option>
+                        <option value="painting" {% if service_type == 'painting' %}selected{% endif %}>Painting Service</option>
+                        <option value="coaching" {% if service_type == 'coaching' %}selected{% endif %}>Coaching</option>
+                        <option value="commission" {% if service_type == 'commission' %}selected{% endif %}>Commission Work</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select name="skill" class="form-select">
+                        <option value="">All Skill Levels</option>
+                        <option value="beginner" {% if skill_level == 'beginner' %}selected{% endif %}>Beginner</option>
+                        <option value="intermediate" {% if skill_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="advanced" {% if skill_level == 'advanced' %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if services %}
+        <div class="row">
+            {% for service in services %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">{{ service.title }}</h5>
+                            <span class="badge bg-info">{{ service.get_skill_level_display }}</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <span class="badge bg-secondary">{{ service.get_service_type_display }}</span>
+                        </div>
+                        
+                        <p class="card-text text-muted small">{{ service.description|truncatewords:20 }}</p>
+                        
+                        <div class="mb-3">
+                            <p class="mb-1"><strong><i class="fas fa-user"></i> Provider:</strong> {{ service.provider_name }}</p>
+                            <p class="mb-1"><i class="fas fa-clock"></i> Duration: {{ service.duration_hours }} hours</p>
+                            <p class="mb-1 h5 text-primary"><i class="fas fa-dollar-sign"></i>${{ service.price }}</p>
+                        </div>
+                        
+                        <a href="{% url 'service_detail' service.pk %}" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No services available at the moment. Check back soon!
+        </div>
+    {% endif %}
+</div>
+{% endblock content %}
