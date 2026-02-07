@@ -69,8 +69,69 @@
             <div class="card shadow mb-4">
                 <div class="card-body">
                     <h5 class="card-title mb-4">Contact Seller</h5>
-                    <button class="btn btn-primary w-100 mb-2">Send Message</button>
-                    <button class="btn btn-outline-secondary w-100">Contact Info</button>
+                    {% if user.is_authenticated and user == post.author %}
+                        <h6 class="mb-3">Messages on this post</h6>
+                        {% if owner_messages %}
+                            <div class="list-group">
+                                {% for msg in owner_messages %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ msg.subject|default:'(no subject)' }}</h6>
+                                        <small class="text-muted">{{ msg.created_at|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ msg.message|truncatewords:25 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">From: {{ msg.sender.get_full_name|default:msg.sender.username }} {% if not msg.read %}<span class="badge bg-warning text-dark ms-2">New</span>{% endif %}</small>
+                                        <a href="{% url 'reply_to_message' msg.id %}" class="btn btn-sm btn-outline-primary">Reply</a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info mb-0">No messages yet for this post.</div>
+                        {% endif %}
+                    {% elif user.is_authenticated %}
+                        {# Buyer viewing post - show conversation and message form #}
+                        <h6 class="mb-3">Conversation with Seller</h6>
+                        {% if buyer_messages %}
+                            <div class="list-group mb-3" style="max-height: 400px; overflow-y: auto;">
+                                {% for msg in buyer_messages %}
+                                <div class="list-group-item {% if msg.sender == user %}bg-light{% else %}bg-info bg-opacity-10{% endif %}">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ msg.subject|default:'(no subject)' }}</h6>
+                                        <small class="text-muted">{{ msg.created_at|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ msg.message }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            {% if msg.sender == user %}You{% else %}{{ post.author.get_full_name|default:post.author.username }}{% endif %}
+                                        </small>
+                                        {% if msg.sender != user %}
+                                            <a href="{% url 'reply_to_message' msg.id %}" class="btn btn-sm btn-outline-primary">Reply</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info mb-3 py-2">No messages yet. Send one to start the conversation!</div>
+                        {% endif %}
+                        
+                        <form method="post" action="{% url 'send_message_to_post' post.pk %}">
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <input type="text" name="subject" class="form-control form-control-sm" placeholder="Subject (optional)">
+                            </div>
+                            <div class="mb-2">
+                                <textarea name="message" class="form-control form-control-sm" rows="3" placeholder="Write your message..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 btn-sm">Send Message</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}?next={% url 'trading_detail' post.pk %}" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-sign-in-alt"></i> Login to Send Message
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             

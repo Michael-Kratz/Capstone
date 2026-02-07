@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.db.models import Q
-from .models import Event, Service, TradePost, UserProfile, ServiceBooking, EventRegistration
+from django.contrib import messages
+from .models import Event, Service, TradePost, UserProfile, ServiceBooking, EventRegistration, ContactMessage
 
 
 def home_view(request):
@@ -212,7 +213,101 @@ def trading_detail(request, pk):
     """Display trade post details"""
     post = get_object_or_404(TradePost, pk=pk, is_active=True)
     context = {'post': post}
+
+    # If the post owner is viewing, provide their messages and mark as read
+    if request.user.is_authenticated and request.user == post.author:
+        owner_messages = post.messages.filter(recipient=post.author)
+        # mark unread messages as read for the owner
+        unread_qs = owner_messages.filter(read=False)
+        if unread_qs.exists():
+            unread_qs.update(read=True)
+        context['owner_messages'] = owner_messages
+    
+    # If the user is authenticated but NOT the owner, show their conversation (sent messages + replies)
+    elif request.user.is_authenticated:
+        # Get messages they sent to this post's owner
+        sent_messages = post.messages.filter(sender=request.user, recipient=post.author)
+        # Get replies from the owner to this user
+        received_replies = post.messages.filter(sender=post.author, recipient=request.user)
+        # Combine and order by created_at
+        conversation = (sent_messages | received_replies).order_by('created_at')
+        context['buyer_messages'] = conversation
+
     return render(request, "pages/trading_detail.html", context)
+
+
+@login_required
+def send_message_to_post(request, pk):
+    """Send an internal message to the post author"""
+    post = get_object_or_404(TradePost, pk=pk, is_active=True)
+    if request.method != 'POST':
+        return redirect('trading_detail', pk=pk)
+
+    message_text = request.POST.get('message', '').strip()
+    subject = request.POST.get('subject', '').strip()
+
+    if not message_text:
+        messages.error(request, 'Message cannot be empty.')
+        return redirect('trading_detail', pk=pk)
+
+    # Prevent sending message to yourself
+    if request.user == post.author:
+        messages.error(request, "You cannot send a message to your own post.")
+        return redirect('trading_detail', pk=pk)
+
+    # Create internal message
+    ContactMessage.objects.create(
+        post=post,
+        sender=request.user,
+        recipient=post.author,
+        subject=subject,
+        message=message_text,
+    )
+
+    messages.success(request, 'Your message was sent to the seller.')
+    return redirect('trading_detail', pk=pk)
+
+
+@login_required
+def reply_to_message(request, message_id):
+    """Reply to a contact message (owner or buyer may reply to their conversation partner)"""
+    original = get_object_or_404(ContactMessage, pk=message_id)
+    post = original.post
+
+    # Check authorization: either post owner or the original message recipient (buyer)
+    is_owner = request.user == post.author
+    is_recipient = request.user == original.recipient
+    
+    if not (is_owner or is_recipient):
+        messages.error(request, 'You are not authorized to reply to this message.')
+        return redirect('trading_detail', pk=post.pk)
+
+    if request.method == 'POST':
+        reply_text = request.POST.get('message', '').strip()
+        if not reply_text:
+            messages.error(request, 'Reply cannot be empty.')
+            return redirect('reply_to_message', message_id=message_id)
+
+        # Determine who the reply recipient is
+        if is_owner:
+            reply_recipient = original.sender
+        else:
+            reply_recipient = post.author
+
+        # Create reply message directed to the other party
+        ContactMessage.objects.create(
+            post=post,
+            sender=request.user,
+            recipient=reply_recipient,
+            subject=("Re: " + original.subject) if original.subject else "Re: (no subject)",
+            message=reply_text,
+        )
+
+        messages.success(request, 'Reply sent.')
+        return redirect('trading_detail', pk=post.pk)
+
+    context = {'original': original}
+    return render(request, 'pages/trading_message_reply.html', context)
 
 
 @login_required

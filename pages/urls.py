@@ -28,6 +28,8 @@ urlpatterns = [
     # Trading Posts
     path("trading/", views.trading_list, name="trading_list"),
     path("trading/<int:pk>/", views.trading_detail, name="trading_detail"),
+    path("trading/<int:pk>/message/", views.send_message_to_post, name="send_message_to_post"),
+    path("trading/message/<int:message_id>/reply/", views.reply_to_message, name="reply_to_message"),
     path("trading/create/", views.trading_create, name="trading_create"),
     path("trading/<int:pk>/edit/", views.trading_edit, name="trading_edit"),
     path("trading/<int:pk>/delete/", views.trading_delete, name="trading_delete"),

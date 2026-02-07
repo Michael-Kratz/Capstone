@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, Service, TradePost, UserProfile, ServiceBooking, EventRegistration
+from .models import Event, Service, TradePost, UserProfile, ServiceBooking, EventRegistration, ContactMessage
 
 
 @admin.register(Event)
@@ -121,5 +121,24 @@ class EventRegistrationAdmin(admin.ModelAdmin):
         }),
         ('Notes', {
             'fields': ('notes',)
+        }),
+    )
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ['sender', 'recipient', 'post', 'created_at', 'read']
+    list_filter = ['read', 'created_at']
+    search_fields = ['sender__username', 'recipient__username', 'post__title', 'message']
+    readonly_fields = ['created_at']
+    fieldsets = (
+        ('Message Info', {
+            'fields': ('post', 'sender', 'recipient', 'created_at')
+        }),
+        ('Message', {
+            'fields': ('subject', 'message')
+        }),
+        ('Status', {
+            'fields': ('read',)
         }),
     )
